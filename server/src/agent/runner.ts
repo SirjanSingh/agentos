@@ -16,6 +16,13 @@ interface ActiveRun {
 const activeRuns = new Map<string, ActiveRun>();
 const pendingApprovals = new Map<string, (allow: boolean) => void>();
 
+/** When on, tool calls outside a skill's allowlist are approved without asking (in-memory, off on boot). */
+let autoApproveAll = false;
+export const getAutoApprove = () => autoApproveAll;
+export const setAutoApprove = (on: boolean) => {
+  autoApproveAll = on;
+};
+
 export function resolveApproval(requestId: string, allow: boolean): boolean {
   const resolve = pendingApprovals.get(requestId);
   if (!resolve) return false;
@@ -76,6 +83,10 @@ async function executeRun(
       settingSources: [],
       systemPrompt: { type: "preset", preset: "claude_code" },
       canUseTool: async (toolName: string, input: Record<string, unknown>) => {
+        if (autoApproveAll) {
+          broadcast({ type: "auto_approved", runId: record.id, toolName });
+          return { behavior: "allow" as const, updatedInput: input };
+        }
         const requestId = crypto.randomUUID().slice(0, 8);
         broadcast({
           type: "approval_request",

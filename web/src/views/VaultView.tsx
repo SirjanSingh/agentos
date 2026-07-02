@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { api, fmtAgo } from "../lib/api";
@@ -41,9 +42,11 @@ function Tree({
   );
 }
 
-export default function VaultView({ initialPath }: { initialPath?: string | null }) {
+export default function VaultView() {
   const [tree, setTree] = useState<VaultEntry[]>([]);
-  const [selected, setSelected] = useState<string | null>(initialPath ?? null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selected = searchParams.get("note");
+  const setSelected = (path: string) => setSearchParams({ note: path });
   const [note, setNote] = useState<{ content: string; mtimeMs: number } | null>(null);
   const { runEvents } = useLive();
 
@@ -86,7 +89,9 @@ export default function VaultView({ initialPath }: { initialPath?: string | null
               {selected} · updated {fmtAgo(note.mtimeMs)}
             </div>
             <div className="md-body text-sm">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {note.content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "")}
+              </ReactMarkdown>
             </div>
           </motion.div>
         ) : (

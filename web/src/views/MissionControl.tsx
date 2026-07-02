@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { api, fmtAgo, fmtDuration, fmtUSD } from "../lib/api";
@@ -127,13 +128,10 @@ function TranscriptMessage({ msg }: { msg: AgentMessage }) {
   return null;
 }
 
-export default function MissionControl({
-  selectedRunId,
-  onSelectRun,
-}: {
-  selectedRunId: string | null;
-  onSelectRun: (id: string) => void;
-}) {
+export default function MissionControl() {
+  const { runId: selectedRunId } = useParams();
+  const navigate = useNavigate();
+  const onSelectRun = (id: string) => navigate(`/mission/${id}`);
   const { transcripts, liveText, runEvents, approvals, respondApproval } = useLive();
   const [restRuns, setRestRuns] = useState<RunRecord[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);

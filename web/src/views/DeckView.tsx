@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api, fmtAgo, fmtTokens, fmtUSD } from "../lib/api";
 import { CountUp, rise, stagger } from "../lib/motion";
 import type { PulseResponse, RunRecord, SkillMeta } from "../lib/types";
@@ -50,17 +51,12 @@ function BurnRing({ frac }: { frac: number }) {
   );
 }
 
-export default function DeckView({
-  onRunStarted,
-  onOpenSkills,
-  onOpenNote,
-  onOpenRun,
-}: {
-  onRunStarted: (runId: string) => void;
-  onOpenSkills: () => void;
-  onOpenNote: (path: string) => void;
-  onOpenRun: (runId: string) => void;
-}) {
+export default function DeckView() {
+  const navigate = useNavigate();
+  const onRunStarted = (runId: string) => navigate(`/mission/${runId}`);
+  const onOpenSkills = () => navigate("/skills");
+  const onOpenNote = (path: string) => navigate(`/vault?note=${encodeURIComponent(path)}`);
+  const onOpenRun = (runId: string) => navigate(`/mission/${runId}`);
   const [pulse, setPulse] = useState<PulseResponse | null>(null);
   const [skills, setSkills] = useState<SkillMeta[]>([]);
   const [launching, setLaunching] = useState<string | null>(null);
@@ -96,7 +92,7 @@ export default function DeckView({
 
   return (
     <div className="p-8 max-w-6xl">
-      <h1 className="text-xl font-semibold">{greeting}, Sirjan</h1>
+      <h1 className="text-3xl h-display">{greeting}, Sirjan</h1>
       <p className="text-sm text-dim mt-1 font-mono">
         {pulse?.activeRuns ? `${pulse.activeRuns} agent${pulse.activeRuns > 1 ? "s" : ""} working right now` : "all agents idle"}
       </p>

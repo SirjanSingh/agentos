@@ -21,6 +21,9 @@ export interface LiveState {
   runEvents: Record<string, RunRecord>;
   approvals: ApprovalRequest[];
   respondApproval: (requestId: string, allow: boolean) => void;
+  /** server-side "approve everything without asking" switch */
+  autoApprove: boolean;
+  setAutoApprove: (on: boolean) => void;
 }
 
 const Ctx = createContext<LiveState | null>(null);
@@ -37,7 +40,15 @@ export function WSProvider({ children }: { children: ReactNode }) {
   const [liveText, setLiveText] = useState<Record<string, string>>({});
   const [runEvents, setRunEvents] = useState<Record<string, RunRecord>>({});
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
+  const [autoApprove, setAutoApproveState] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((s) => setAutoApproveState(!!s.autoApprove))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let closed = false;
@@ -98,6 +109,9 @@ export function WSProvider({ children }: { children: ReactNode }) {
           case "approval_resolved":
             setApprovals((prev) => prev.filter((a) => a.requestId !== msg.requestId));
             break;
+          case "settings":
+            setAutoApproveState(!!msg.settings?.autoApprove);
+            break;
         }
       };
     };
@@ -117,9 +131,27 @@ export function WSProvider({ children }: { children: ReactNode }) {
     setApprovals((prev) => prev.filter((a) => a.requestId !== requestId));
   }, []);
 
+  const setAutoApprove = useCallback((on: boolean) => {
+    setAutoApproveState(on); // optimistic; server broadcast confirms
+    fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ autoApprove: on }),
+    }).catch(() => {});
+  }, []);
+
   return (
     <Ctx.Provider
-      value={{ connected, transcripts, liveText, runEvents, approvals, respondApproval }}
+      value={{
+        connected,
+        transcripts,
+        liveText,
+        runEvents,
+        approvals,
+        respondApproval,
+        autoApprove,
+        setAutoApprove,
+      }}
     >
       {children}
     </Ctx.Provider>

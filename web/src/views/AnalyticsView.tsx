@@ -113,7 +113,7 @@ export default function AnalyticsView() {
     <div className="p-8 max-w-6xl space-y-6">
       <div className="flex items-center gap-4">
         <div>
-          <h1 className="text-xl font-semibold">Analytics</h1>
+          <h1 className="text-3xl h-display">Analytics</h1>
           <p className="text-sm text-dim mt-0.5">
             Real numbers from <code className="font-mono">~/.claude</code> · costs are estimates
           </p>

@@ -1,5 +1,12 @@
 import express, { type Request, type Response, type Router } from "express";
-import { activeRunIds, startRun, stopRun, type Broadcast } from "./agent/runner.js";
+import {
+  activeRunIds,
+  getAutoApprove,
+  setAutoApprove,
+  startRun,
+  stopRun,
+  type Broadcast,
+} from "./agent/runner.js";
 import {
   activityHeatmap,
   dailySeries,
@@ -89,6 +96,19 @@ export function createApi(broadcast: Broadcast): Router {
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }
+  });
+
+  // ---- settings ----
+  api.get("/settings", (_req, res) => {
+    res.json({ autoApprove: getAutoApprove() });
+  });
+
+  api.post("/settings", (req, res) => {
+    if (typeof req.body?.autoApprove === "boolean") {
+      setAutoApprove(req.body.autoApprove);
+      broadcast({ type: "settings", settings: { autoApprove: getAutoApprove() } });
+    }
+    res.json({ autoApprove: getAutoApprove() });
   });
 
   // ---- vault ----

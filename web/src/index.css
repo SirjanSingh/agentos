@@ -1,4 +1,6 @@
 @import "@fontsource-variable/space-grotesk";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/600.css";
 @import "tailwindcss";
@@ -17,12 +19,26 @@
   --color-bad: #f87171;
   --font-sans: "Space Grotesk Variable", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  --font-display: "Instrument Serif", Georgia, serif;
 }
 
 html,
 body,
 #root {
   height: 100%;
+}
+
+/* bump the whole rem scale — the app read too small at Tailwind defaults */
+html {
+  font-size: 17px;
+}
+
+/* display headings: the serif voice on top of the terminal body */
+.h-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 body {
@@ -125,17 +141,33 @@ body {
   }
 }
 
+.md-body {
+  line-height: 1.7;
+}
 .md-body :is(h1, h2, h3) {
-  @apply font-semibold text-ink mt-4 mb-2;
+  @apply font-semibold text-ink mt-5 mb-2;
 }
 .md-body h1 {
-  @apply text-lg;
+  @apply text-2xl pb-2 border-b border-edge;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
 }
 .md-body h2 {
-  @apply text-base;
+  @apply text-lg pb-1 border-b border-edge/60;
+}
+.md-body h3 {
+  @apply text-base text-accent;
 }
 .md-body p {
-  @apply my-2 leading-relaxed;
+  @apply my-2.5 leading-relaxed;
+}
+.md-body strong {
+  @apply text-ink font-semibold;
+}
+.md-body em {
+  font-family: var(--font-display);
+  font-size: 1.06em;
 }
 .md-body ul {
   @apply list-disc pl-5 my-2 space-y-1;

@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api, fmtDuration, fmtUSD } from "../lib/api";
 import { rise, stagger } from "../lib/motion";
 import type { RunRecord, SkillMeta } from "../lib/types";
@@ -154,7 +155,9 @@ function SkillCard({
   );
 }
 
-export default function SkillsView({ onRunStarted }: { onRunStarted: (runId: string) => void }) {
+export default function SkillsView() {
+  const navigate = useNavigate();
+  const onRunStarted = (runId: string) => navigate(`/mission/${runId}`);
   const [skills, setSkills] = useState<SkillMeta[]>([]);
   const [runs, setRuns] = useState<RunRecord[]>([]);
   const { runEvents } = useLive();
@@ -177,7 +180,7 @@ export default function SkillsView({ onRunStarted }: { onRunStarted: (runId: str
 
   return (
     <div className="p-8 max-w-6xl">
-      <h1 className="text-xl font-semibold">Skills Launchpad</h1>
+      <h1 className="text-3xl h-display">Skills Launchpad</h1>
       <p className="text-sm text-dim mt-1">
         Your daily work as one-click agents. Drop a <code className="font-mono">*.skill.md</code>{" "}
         file into <code className="font-mono">skills/</code> to add one.
