@@ -3,4 +3,5 @@ dist/
 data/runs.jsonl
 .env
 *.log
-vault/.obsidian/workspace.json
+# vault content is personal data (briefings, research), not app code — server recreates structure
+vault/
