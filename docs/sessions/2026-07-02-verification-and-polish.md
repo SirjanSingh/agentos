@@ -62,12 +62,17 @@ you add below.
 
 ## Known issues found in live runs
 
-- **Headless runs can die on approvals**: usage-report's Bash call waited in the approval
-  bridge with no UI open → 5-min timeout → denied → run "succeeded" but wrote no report.
-  Its allowedTools includes Bash, so why did canUseTool fire? Investigate (suspect: SDK still
-  routes some Bash invocations through canUseTool, e.g. sub-command permission rules). Options:
-  auto-approve when no WS client is connected + skill opts in, or surface pending approvals as
-  a system notification.
+- **[SOLVED] Headless runs dying on approvals**: root cause — usage-report's prompt suggests
+  `Invoke-RestMethod` so on Windows the agent picks the **PowerShell tool**, which wasn't in
+  `allowedTools` (only Bash was) → approval bridge → 5-min timeout → deny. Fix: PowerShell added
+  to the allowlists of usage-report/repo-health/daily-briefing; verified by headless rerun
+  (2m41s, report written). Lesson: **on Windows, any skill whose prompt shows PS syntax needs
+  PowerShell in allowedTools**.
+- **User feedback round (same evening)**: font too small / too plain, no routing, approvals
+  irritating. Shipped: 17px base + Instrument Serif italic display headings + richer md-body;
+  react-router (deep-linkable views incl. /vault?note=); server-side auto-approve toggle
+  (in-memory, off on boot, sidebar switch, WS-synced). Verified via Playwright: URLs change,
+  deep links render, back button works, toggle round-trips, auto-approved run finished in 23s.
 - **`tsx watch` wedges silently** under this harness's PowerShell background shells (no output,
   never listens). Plain `npx tsx src/index.ts` works. `npm run dev`'s concurrently pipe also
   swallowed the Express PathError at boot. Consider swapping dev script to `node --watch` or
