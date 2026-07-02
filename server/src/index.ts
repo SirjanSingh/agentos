@@ -42,7 +42,7 @@ app.use("/api", createApi(broadcast));
 const webDist = path.join(repoRoot, "web", "dist");
 if (fs.existsSync(webDist)) {
   app.use(express.static(webDist));
-  app.get("*", (_req, res) => res.sendFile(path.join(webDist, "index.html")));
+  app.get("/*splat", (_req, res) => res.sendFile(path.join(webDist, "index.html")));
 }
 
 server.listen(cfg.serverPort, () => {
