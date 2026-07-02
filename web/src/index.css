@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #070a12;
+  --color-panel: #0d1220;
+  --color-panel2: #121a2e;
+  --color-edge: #1c2740;
+  --color-ink: #dbe4f5;
+  --color-dim: #6b7a99;
+  --color-accent: #37d0ee;
+  --color-accent2: #8b7cf6;
+  --color-ok: #34d399;
+  --color-warn: #fbbf24;
+  --color-bad: #f87171;
+  --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-bg text-ink antialiased;
+  font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-edge);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel {
+  @apply bg-panel border border-edge rounded-xl;
+}
+
+.md-body :is(h1, h2, h3) {
+  @apply font-semibold text-ink mt-4 mb-2;
+}
+.md-body h1 {
+  @apply text-lg;
+}
+.md-body h2 {
+  @apply text-base;
+}
+.md-body p {
+  @apply my-2 leading-relaxed;
+}
+.md-body ul {
+  @apply list-disc pl-5 my-2 space-y-1;
+}
+.md-body ol {
+  @apply list-decimal pl-5 my-2 space-y-1;
+}
+.md-body code {
+  @apply font-mono text-[0.85em] bg-panel2 px-1 py-0.5 rounded text-accent;
+}
+.md-body pre {
+  @apply bg-panel2 border border-edge rounded-lg p-3 my-2 overflow-x-auto;
+}
+.md-body pre code {
+  @apply bg-transparent p-0 text-ink;
+}
+.md-body a {
+  @apply text-accent underline decoration-accent/40 hover:decoration-accent;
+}
+.md-body table {
+  @apply w-full text-sm my-3 border-collapse;
+}
+.md-body th {
+  @apply text-left text-dim font-medium border-b border-edge px-2 py-1.5;
+}
+.md-body td {
+  @apply border-b border-edge/50 px-2 py-1.5;
+}
+.md-body blockquote {
+  @apply border-l-2 border-accent2 pl-3 my-2 text-dim;
+}
