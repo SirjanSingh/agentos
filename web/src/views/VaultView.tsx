@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -40,9 +41,9 @@ function Tree({
   );
 }
 
-export default function VaultView() {
+export default function VaultView({ initialPath }: { initialPath?: string | null }) {
   const [tree, setTree] = useState<VaultEntry[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(initialPath ?? null);
   const [note, setNote] = useState<{ content: string; mtimeMs: number } | null>(null);
   const { runEvents } = useLive();
 
@@ -74,14 +75,20 @@ export default function VaultView() {
       </div>
       <div className="flex-1 min-w-0 overflow-y-auto">
         {note && selected ? (
-          <div className="px-8 py-6 max-w-3xl">
+          <motion.div
+            key={selected}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="px-8 py-6 max-w-3xl"
+          >
             <div className="text-[11px] font-mono text-dim mb-4">
               {selected} · updated {fmtAgo(note.mtimeMs)}
             </div>
             <div className="md-body text-sm">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
             </div>
-          </div>
+          </motion.div>
         ) : (
           <div className="h-full grid place-items-center text-dim text-sm">
             Select a note to preview it.

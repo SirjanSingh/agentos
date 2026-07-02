@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -13,7 +14,7 @@ const STATUS_STYLE: Record<RunRecord["status"], string> = {
 };
 
 const STATUS_DOT: Record<RunRecord["status"], string> = {
-  running: "bg-accent animate-pulse",
+  running: "bg-accent relative dot-live",
   success: "bg-ok",
   error: "bg-bad",
   cancelled: "bg-warn",
@@ -167,8 +168,12 @@ export default function MissionControl({
           </div>
         )}
         {runs.slice(0, 50).map((r) => (
-          <button
+          <motion.button
             key={r.id}
+            layout
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 32 }}
             onClick={() => onSelectRun(r.id)}
             className={`w-full text-left px-3 py-2.5 rounded-lg border transition-colors ${
               selected?.id === r.id
@@ -188,7 +193,7 @@ export default function MissionControl({
               <span>{fmtAgo(r.startedAt)}</span>
               {r.costUSD != null && <span>{fmtUSD(r.costUSD)}</span>}
             </div>
-          </button>
+          </motion.button>
         ))}
       </div>
 
@@ -243,20 +248,32 @@ export default function MissionControl({
                 </div>
               )}
               {transcript.map((m, i) => (
-                <TranscriptMessage key={i} msg={m} />
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <TranscriptMessage msg={m} />
+                </motion.div>
               ))}
               {live && (
                 <div className="md-body text-sm py-1 opacity-80">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{live}</ReactMarkdown>
-                  <span className="inline-block w-2 h-4 bg-accent animate-pulse ml-0.5 align-text-bottom" />
+                  <span className="caret inline-block w-2 h-4 bg-accent ml-0.5 align-text-bottom" />
                 </div>
               )}
             </div>
 
             {/* approval bar */}
+            <AnimatePresence>
             {runApprovals.map((a) => (
-              <div
+              <motion.div
                 key={a.requestId}
+                initial={{ opacity: 0, y: 24, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 16, scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 420, damping: 30 }}
                 className="mx-6 mb-4 border border-warn/40 bg-warn/10 rounded-xl px-4 py-3 flex items-center gap-4"
               >
                 <div className="min-w-0">
@@ -281,8 +298,9 @@ export default function MissionControl({
                     Deny
                   </button>
                 </div>
-              </div>
+              </motion.div>
             ))}
+            </AnimatePresence>
           </>
         ) : (
           <div className="flex-1 grid place-items-center text-dim text-sm">

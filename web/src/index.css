@@ -1,8 +1,11 @@
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/600.css";
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #070a12;
-  --color-panel: #0d1220;
+  --color-bg: #06080f;
+  --color-panel: #0c111e;
   --color-panel2: #121a2e;
   --color-edge: #1c2740;
   --color-ink: #dbe4f5;
@@ -12,7 +15,8 @@
   --color-ok: #34d399;
   --color-warn: #fbbf24;
   --color-bad: #f87171;
-  --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  --font-sans: "Space Grotesk Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
 }
 
 html,
@@ -23,7 +27,19 @@ body,
 
 body {
   @apply bg-bg text-ink antialiased;
-  font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-sans);
+  /* faint radar glow top-left + hairline grid — the cockpit texture */
+  background-image:
+    radial-gradient(1100px 500px at 12% -8%, rgba(55, 208, 238, 0.07), transparent 60%),
+    radial-gradient(900px 480px at 95% 110%, rgba(139, 124, 246, 0.05), transparent 60%),
+    linear-gradient(rgba(28, 39, 64, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(28, 39, 64, 0.22) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    44px 44px,
+    44px 44px;
+  background-attachment: fixed;
 }
 
 ::-webkit-scrollbar {
@@ -34,12 +50,79 @@ body {
   background: var(--color-edge);
   border-radius: 4px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3a5e;
+}
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
+::selection {
+  background: rgba(55, 208, 238, 0.25);
+}
+
 .panel {
-  @apply bg-panel border border-edge rounded-xl;
+  @apply bg-panel/80 border border-edge rounded-xl;
+  backdrop-filter: blur(6px);
+}
+
+/* soft cyan lift for interactive panels */
+.panel-glow {
+  transition:
+    border-color 200ms ease,
+    box-shadow 300ms ease,
+    transform 200ms ease;
+}
+.panel-glow:hover {
+  border-color: rgba(55, 208, 238, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(55, 208, 238, 0.08),
+    0 12px 32px -16px rgba(55, 208, 238, 0.25);
+}
+
+/* streaming caret */
+@keyframes caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0.15;
+  }
+}
+.caret {
+  animation: caret-blink 0.9s steps(1) infinite;
+}
+
+/* live-run ring: a slow radar sweep on running status dots */
+@keyframes ping-soft {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.dot-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  animation: ping-soft 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .md-body :is(h1, h2, h3) {

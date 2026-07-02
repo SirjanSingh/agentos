@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "motion": "^12.42.2",
     "react": "latest",
     "react-dom": "latest",
     "react-markdown": "latest",

@@ -1,5 +1,7 @@
+import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { api, fmtDuration, fmtUSD } from "../lib/api";
+import { rise, stagger } from "../lib/motion";
 import type { RunRecord, SkillMeta } from "../lib/types";
 import { useLive } from "../lib/ws";
 
@@ -30,10 +32,12 @@ function Sparkline({ runs }: { runs: RunRecord[] }) {
   const max = Math.max(...pts.map((r) => r.durationMs ?? 0), 1);
   return (
     <div className="flex items-end gap-[3px] h-6" title="recent run durations">
-      {pts.map((r) => (
-        <div
+      {pts.map((r, i) => (
+        <motion.div
           key={r.id}
-          style={{ height: `${Math.max(15, ((r.durationMs ?? 0) / max) * 100)}%` }}
+          initial={{ height: 0 }}
+          animate={{ height: `${Math.max(15, ((r.durationMs ?? 0) / max) * 100)}%` }}
+          transition={{ duration: 0.4, delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}
           className={`w-1.5 rounded-sm ${
             r.status === "success"
               ? "bg-ok/70"
@@ -74,7 +78,7 @@ function SkillCard({
   };
 
   return (
-    <div className="panel p-5 flex flex-col gap-4 hover:border-accent/40 transition-colors">
+    <motion.div variants={rise} className="panel panel-glow p-5 flex flex-col gap-4">
       <div className="flex items-start gap-3">
         <div className="text-3xl leading-none">{skill.icon}</div>
         <div className="min-w-0">
@@ -136,14 +140,17 @@ function SkillCard({
 
       {error && <div className="text-xs text-bad">{error}</div>}
 
-      <button
+      <motion.button
         onClick={launch}
         disabled={busy}
+        whileHover={{ scale: 1.015 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
         className="w-full py-2 rounded-lg bg-accent/15 text-accent border border-accent/30 hover:bg-accent/25 disabled:opacity-50 text-sm font-medium transition-colors"
       >
         {busy ? "Launching…" : "▶ Run"}
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }
 
@@ -175,7 +182,12 @@ export default function SkillsView({ onRunStarted }: { onRunStarted: (runId: str
         Your daily work as one-click agents. Drop a <code className="font-mono">*.skill.md</code>{" "}
         file into <code className="font-mono">skills/</code> to add one.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-6">
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-6"
+      >
         {skills.map((s) => (
           <SkillCard
             key={s.id}
@@ -189,7 +201,7 @@ export default function SkillsView({ onRunStarted }: { onRunStarted: (runId: str
             No skills found — is the server running?
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
