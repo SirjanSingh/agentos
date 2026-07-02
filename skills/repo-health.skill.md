@@ -3,7 +3,7 @@ name: Repo Health Sweep
 description: Scan every repo under D:\projs — dirty trees, unpushed commits, stale branches — and file a status board into the vault.
 icon: "🩺"
 params: []
-allowedTools: [Read, Glob, Write, Bash]
+allowedTools: [Read, Glob, Write, Bash, PowerShell]
 permissionMode: acceptEdits
 maxTurns: 40
 ---

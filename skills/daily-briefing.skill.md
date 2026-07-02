@@ -3,7 +3,7 @@ name: Daily Briefing
 description: Summarize yesterday's Claude Code sessions + git activity across all projects into a daily note in the vault.
 icon: "📰"
 params: []
-allowedTools: [Read, Grep, Glob, Write, Bash]
+allowedTools: [Read, Grep, Glob, Write, Bash, PowerShell]
 permissionMode: acceptEdits
 maxTurns: 40
 ---

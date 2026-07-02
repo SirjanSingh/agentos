@@ -3,7 +3,7 @@ name: Usage & Cost Report
 description: Turn the last 30 days of Claude Code metrics into a narrative report with recommendations, filed to the vault.
 icon: "📊"
 params: []
-allowedTools: [Read, Write, Bash]
+allowedTools: [Read, Write, Bash, PowerShell]
 permissionMode: acceptEdits
 maxTurns: 20
 ---
