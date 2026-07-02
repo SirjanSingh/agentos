@@ -1,4 +1,4 @@
-import type { MetricsResponse, RunRecord, SkillMeta, VaultEntry } from "./types";
+import type { MetricsResponse, PulseResponse, RunRecord, SkillMeta, VaultEntry } from "./types";
 
 async function get<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -11,6 +11,7 @@ export const api = {
   runs: () => get<{ runs: RunRecord[]; active: string[] }>("/api/runs"),
   metrics: (days: number, includeAgentOS: boolean) =>
     get<MetricsResponse>(`/api/metrics?days=${days}&includeAgentOS=${includeAgentOS}`),
+  pulse: () => get<PulseResponse>("/api/pulse"),
   vaultTree: () => get<{ tree: VaultEntry[] }>("/api/vault/tree"),
   vaultNote: (path: string) =>
     get<{ path: string; content: string; mtimeMs: number }>(

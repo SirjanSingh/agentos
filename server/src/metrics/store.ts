@@ -17,6 +17,7 @@ export interface SessionStats {
   costUSD: number;
   toolCounts: Record<string, number>;
   models: string[];
+  costByModel: Record<string, number>;
 }
 
 interface FileCacheEntry {
@@ -45,6 +46,7 @@ async function parseSessionFile(file: string): Promise<SessionStats | null> {
     costUSD: 0,
     toolCounts: {},
     models: [],
+    costByModel: {},
   };
   const models = new Set<string>();
 
@@ -90,7 +92,9 @@ async function parseSessionFile(file: string): Promise<SessionStats | null> {
         stats.usage.output += delta.output;
         stats.usage.cacheWrite += delta.cacheWrite;
         stats.usage.cacheRead += delta.cacheRead;
-        stats.costUSD += estimateCostUSD(model, delta);
+        const cost = estimateCostUSD(model, delta);
+        stats.costUSD += cost;
+        stats.costByModel[model] = (stats.costByModel[model] ?? 0) + cost;
       }
       const content = ev.message.content;
       if (Array.isArray(content)) {

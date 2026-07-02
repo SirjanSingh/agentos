@@ -4,14 +4,16 @@ import {
   activityHeatmap,
   dailySeries,
   filterSessions,
+  modelBreakdown,
   projectRows,
   summarize,
   toolBreakdown,
+  windowUsage,
 } from "./metrics/aggregate.js";
 import { scanSessions } from "./metrics/store.js";
 import { getSkill, loadSkills } from "./skills/loader.js";
 import { listRuns } from "./skills/runstore.js";
-import { readNote, vaultTree } from "./obsidian/vault.js";
+import { readNote, recentNotes, vaultTree } from "./obsidian/vault.js";
 
 export function createApi(broadcast: Broadcast): Router {
   const api = express.Router();
@@ -61,6 +63,27 @@ export function createApi(broadcast: Broadcast): Router {
         projects: projectRows(sessions),
         tools: toolBreakdown(sessions),
         heatmap: activityHeatmap(sessions),
+        models: modelBreakdown(sessions),
+        costIsEstimate: true,
+      });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  });
+
+  // ---- pulse: one call powering the Overview view ----
+  api.get("/pulse", async (_req, res) => {
+    try {
+      const all = await scanSessions();
+      const everything = filterSessions(all, { includeAgentOS: true });
+      const runs = listRuns();
+      res.json({
+        window5h: windowUsage(everything, 5 * 3_600_000),
+        window7d: windowUsage(everything, 7 * 86_400_000),
+        today: summarize(filterSessions(all, { days: 1, includeAgentOS: true })),
+        recentNotes: recentNotes(8),
+        recentRuns: runs.slice(0, 6),
+        activeRuns: activeRunIds().length,
         costIsEstimate: true,
       });
     } catch (err) {

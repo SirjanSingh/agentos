@@ -90,6 +90,23 @@ export interface MetricsResponse {
   }>;
   tools: Array<{ name: string; count: number }>;
   heatmap: number[][];
+  models: Array<{ model: string; costUSD: number }>;
+}
+
+export interface WindowUsage {
+  costUSD: number;
+  output: number;
+  sessions: number;
+}
+
+export interface PulseResponse {
+  window5h: WindowUsage;
+  window7d: WindowUsage;
+  today: MetricsResponse["summary"];
+  recentNotes: Array<{ name: string; path: string; mtimeMs: number }>;
+  recentRuns: RunRecord[];
+  activeRuns: number;
+  costIsEstimate: boolean;
 }
 
 export interface VaultEntry {

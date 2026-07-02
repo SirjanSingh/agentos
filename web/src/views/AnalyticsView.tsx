@@ -13,7 +13,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { motion } from "motion/react";
 import { api, fmtTokens, fmtUSD } from "../lib/api";
+import { CountUp, rise, stagger } from "../lib/motion";
 import type { MetricsResponse } from "../lib/types";
 
 const COLORS = ["#37d0ee", "#8b7cf6", "#34d399", "#fbbf24", "#f87171", "#f472b6", "#a3e635", "#60a5fa"];
@@ -26,13 +28,25 @@ const tooltipStyle = {
   fontSize: 12,
 } as const;
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatCard({
+  label,
+  value,
+  format,
+  sub,
+}: {
+  label: string;
+  value: number;
+  format: (n: number) => string;
+  sub?: string;
+}) {
   return (
-    <div className="panel px-5 py-4">
+    <motion.div variants={rise} className="panel panel-glow px-5 py-4">
       <div className="text-[11px] uppercase tracking-wider text-dim">{label}</div>
-      <div className="text-2xl font-semibold mt-1 font-mono">{value}</div>
+      <div className="text-2xl font-semibold mt-1 font-mono">
+        <CountUp value={value} format={format} />
+      </div>
       {sub && <div className="text-[11px] text-dim mt-0.5">{sub}</div>}
-    </div>
+    </motion.div>
   );
 }
 
@@ -130,14 +144,24 @@ export default function AnalyticsView() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
-        <StatCard label="Est. cost" value={fmtUSD(s.totalCostUSD)} sub={`${days} days`} />
-        <StatCard label="Sessions" value={String(s.totalSessions)} sub={`${s.activeDays} active days`} />
-        <StatCard label="Prompts" value={String(s.totalPrompts)} />
-        <StatCard label="Tool calls" value={fmtTokens(s.totalToolCalls)} />
-        <StatCard label="Output tokens" value={fmtTokens(s.totalOutput)} />
-        <StatCard label="Cache reads" value={fmtTokens(s.totalCacheRead)} sub="tokens" />
-      </div>
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4"
+      >
+        <StatCard label="Est. cost" value={s.totalCostUSD} format={fmtUSD} sub={`${days} days`} />
+        <StatCard
+          label="Sessions"
+          value={s.totalSessions}
+          format={(n) => String(Math.round(n))}
+          sub={`${s.activeDays} active days`}
+        />
+        <StatCard label="Prompts" value={s.totalPrompts} format={(n) => String(Math.round(n))} />
+        <StatCard label="Tool calls" value={s.totalToolCalls} format={fmtTokens} />
+        <StatCard label="Output tokens" value={s.totalOutput} format={fmtTokens} />
+        <StatCard label="Cache reads" value={s.totalCacheRead} format={fmtTokens} sub="tokens" />
+      </motion.div>
 
       <div className="panel p-5">
         <h3 className="text-sm font-semibold mb-3">Daily est. cost</h3>
@@ -188,6 +212,42 @@ export default function AnalyticsView() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </div>
+
+        <div className="panel p-5">
+          <h3 className="text-sm font-semibold mb-3">Cost by model</h3>
+          <div className="flex items-center">
+            <ResponsiveContainer width="55%" height={260}>
+              <PieChart>
+                <Pie
+                  data={data.models}
+                  dataKey="costUSD"
+                  nameKey="model"
+                  innerRadius={55}
+                  outerRadius={95}
+                  paddingAngle={2}
+                  stroke="none"
+                >
+                  {data.models.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={tooltipStyle} formatter={(v) => fmtUSD(Number(v))} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="space-y-1.5 text-xs font-mono flex-1">
+              {data.models.map((m, i) => (
+                <div key={m.model} className="flex items-center gap-2">
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm shrink-0"
+                    style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                  />
+                  <span className="truncate">{m.model.replace(/^claude-/, "")}</span>
+                  <span className="ml-auto text-dim">{fmtUSD(m.costUSD)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="panel p-5">

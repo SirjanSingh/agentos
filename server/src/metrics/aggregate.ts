@@ -142,6 +142,45 @@ export function toolBreakdown(sessions: SessionStats[]): Array<{ name: string; c
     .sort((a, b) => b.count - a.count);
 }
 
+export function modelBreakdown(sessions: SessionStats[]): Array<{ model: string; costUSD: number }> {
+  const byModel = new Map<string, number>();
+  for (const s of sessions) {
+    for (const [m, c] of Object.entries(s.costByModel)) {
+      if (m === "<synthetic>" || m === "unknown") continue;
+      byModel.set(m, (byModel.get(m) ?? 0) + c);
+    }
+  }
+  return [...byModel.entries()]
+    .map(([model, costUSD]) => ({ model, costUSD }))
+    .sort((a, b) => b.costUSD - a.costUSD);
+}
+
+export interface WindowUsage {
+  costUSD: number;
+  output: number;
+  sessions: number;
+}
+
+/**
+ * Usage inside a trailing window, prorating each session by its time overlap with
+ * the window (per-event timestamps aren't kept, so this is an estimate).
+ */
+export function windowUsage(sessions: SessionStats[], windowMs: number): WindowUsage {
+  const now = Date.now();
+  const start = now - windowMs;
+  const out: WindowUsage = { costUSD: 0, output: 0, sessions: 0 };
+  for (const s of sessions) {
+    if (s.lastTs < start) continue;
+    const dur = Math.max(s.lastTs - s.firstTs, 1);
+    const overlap = Math.min(s.lastTs, now) - Math.max(s.firstTs, start);
+    const frac = Math.min(1, Math.max(0, overlap / dur));
+    out.costUSD += s.costUSD * frac;
+    out.output += s.usage.output * frac;
+    out.sessions += 1;
+  }
+  return out;
+}
+
 /** 7x24 matrix (Mon..Sun x hour) of assistant activity, weighted by message count. */
 export function activityHeatmap(sessions: SessionStats[]): number[][] {
   const grid: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0));

@@ -76,6 +76,19 @@ export function vaultTree(): VaultEntry[] {
   return walk(root, "");
 }
 
+/** Flat list of the most recently modified notes, newest first. */
+export function recentNotes(limit = 8): Array<{ name: string; path: string; mtimeMs: number }> {
+  const flat: Array<{ name: string; path: string; mtimeMs: number }> = [];
+  const collect = (entries: VaultEntry[]) => {
+    for (const e of entries) {
+      if (e.type === "note") flat.push({ name: e.name, path: e.path, mtimeMs: e.mtimeMs ?? 0 });
+      else collect(e.children ?? []);
+    }
+  };
+  collect(vaultTree());
+  return flat.sort((a, b) => b.mtimeMs - a.mtimeMs).slice(0, limit);
+}
+
 export function readNote(rel: string): { path: string; content: string; mtimeMs: number } {
   const full = safeVaultPath(rel);
   return {
