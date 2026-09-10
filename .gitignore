@@ -1,6 +1,8 @@
 node_modules/
 dist/
 data/runs.jsonl
+data/settings.json
+data/transcripts/
 .env
 *.log
 # vault content is personal data (briefings, research), not app code — server recreates structure

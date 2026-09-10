@@ -18,9 +18,9 @@ uses your existing Claude Code login, no API key.
 | --- | --- |
 | ![Skills](docs/screenshots/skills.png) | ![Mission Control](docs/screenshots/mission-approval.png) |
 
-| Analytics | Command palette (Ctrl+K) |
-| --- | --- |
-| ![Analytics](docs/screenshots/analytics.png) | ![Palette](docs/screenshots/palette.png) |
+| Command palette (Ctrl+K) |
+| --- |
+| ![Palette](docs/screenshots/palette.png) |
 
 ## Quick start
 
